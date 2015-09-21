@@ -98,8 +98,14 @@ NSArray* moviePlayerKeys = nil;
 {
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+	//for durationavailable
+	[movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+	//for playbackstate
+	[movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+	//for playing
+	[self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 	
-    [nc addObserver:self selector:@selector(handlePlayerNotification:)
+	[nc addObserver:self selector:@selector(handlePlayerNotification:)
                name:AVPlayerItemDidPlayToEndTimeNotification
              object:movie];
     
@@ -634,7 +640,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)playbackState
 {
 	if (movie.player != nil) {
-		return NUMINT(movie.player.status);
+		return NUMINT(movie.player.rate);
 	}
     return NUMINT(AVPlayerStatusUnknown);
 }
@@ -764,7 +770,7 @@ NSArray* moviePlayerKeys = nil;
 - (void) handlePlayerNotification: (NSNotification *) notification
 {
     NSLog(@"[INFO] test1");
-	if ([notification object] != movie) 
+    if ([notification object] != movie.player)
 	{
 		return;
 	}
@@ -982,11 +988,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"playbackState"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
-		[self fireEvent:@"playbackState" withObject:event];
-	}
 	if ([self _hasListeners:@"playbackstate"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
@@ -1002,6 +1003,20 @@ NSArray* moviePlayerKeys = nil;
 			break;
 	}
 }
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
+{
+	if ([keyPath isEqualToString:@"player.currentItem.duration"]) {
+		[self handleDurationAvailableNotification:nil];
+	}
+	if ([keyPath isEqualToString:@"player.rate"]) {
+		[self handlePlaybackStateChangeNotification:nil];
+	}
+	if ([keyPath isEqualToString:@"url"]) {
+		[self handleNowPlayingNotification:nil];
+	}
+}
+
 
 @end
 
