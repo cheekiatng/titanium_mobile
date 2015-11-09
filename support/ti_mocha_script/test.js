@@ -272,11 +272,11 @@ function outputJUnitXML(jsonResults, fileName, next) {
  */
 function test(callback) {
 	async.series([
-		function (next) {
+/*		function (next) {
 			// If this is already installed we don't re-install, thankfully
 			console.log("Installing SDK from master branch");
 			installSDK(next);
-		},
+		},*/
 		function (next) {
 			getSDKInstallDir(next);
 		},
@@ -302,7 +302,7 @@ function test(callback) {
 		},
 		function (next) {
 			outputJUnitXML(jsonResults,'ios_junit_report.xml', next);
-		},
+		}/*,
 		function (next) {
 			console.log("Launching android test project in emulator");
 			runAndroidBuild(next, 1);
@@ -312,7 +312,7 @@ function test(callback) {
 		},
 		function (next) {
 			outputJUnitXML(jsonResults, 'android_junit_report.xml', next);
-		}		
+		}*/		
 	], callback);
 }
 
