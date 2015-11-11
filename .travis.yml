@@ -61,3 +61,5 @@ after_success:
   - cd support/ti_mocha_script
   - npm install .
   - node test.js
+  - cd $TRAVIS_BUILD_DIR
+  - ls dist
