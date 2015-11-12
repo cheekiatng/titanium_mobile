@@ -299,10 +299,11 @@ function test(callback) {
 		},
 		function (next) {
 			parseTestResults(iosTestResults, next);
-		},
+		}/*,
 		function (next) {
 			outputJUnitXML(jsonResults,'ios_junit_report.xml', next);
-		}/*,
+
+		},
 		function (next) {
 			console.log("Launching android test project in emulator");
 			runAndroidBuild(next, 1);
@@ -313,7 +314,10 @@ function test(callback) {
 		function (next) {
 			outputJUnitXML(jsonResults, 'android_junit_report.xml', next);
 		}*/		
-	], callback);
+	], function(err) {
+		callback(err, iosTestResults);
+	});
+
 }
 
 // public API
@@ -322,11 +326,13 @@ exports.test = test;
 // When run as single script.
 if (module.id === ".") {
 	test(function (err, results) {
+		console.log('kiatoto got it here');
+		console.log(results);
 		if (err) {
 			console.error(err.toString().red);
 			process.exit(1);
 		} else {
-			process.exit(0);
+			process.exit(1);
 		}
 	});
 }
