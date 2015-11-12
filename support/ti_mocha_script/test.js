@@ -14,26 +14,9 @@ var path = require('path'),
 	sdkPath,
 	iosTestResults,
 	androidTestResults,
-	jsonResults;
-
-function installSDK(next) {
-	var prc = spawn('titanium', ['sdk', 'install', '-b', 'master', '-d']);
-	prc.stdout.on('data', function (data) {
-	   console.log(data.toString().trim());
-	});
-	prc.stderr.on('data', function (data) {
-	   console.error(data.toString().trim());
-	});
-
-	prc.on('close', function (code) {
-		var setProcess;
-		if (code != 0) {
-			next("Failed to install master SDK. Exit code: " + code);
-		} else {
-			next();
-		}
-	});
-}
+	iosJsonResults,
+	androidJsonResults,
+	minHealthThreshold = 0.8;
 
 function getSDKInstallDir(next) {
 	var prc = exec('titanium info -o json -t titanium', function (error, stdout, stderr) {
@@ -84,10 +67,7 @@ function addTiAppProperties(next) {
 	fs.readFileSync(tiapp_xml).toString().split(/\r?\n/).forEach(function(line) {
 		content.push(line);
 		if (line.indexOf('<guid>') >= 0) {
-			//content.push('\t<property name="presetString" type="string">Hello!</property>');
-			//content.push('\t<property name="presetBool" type="bool">true</property>');
-			//content.push('\t<property name="presetInt" type="int">1337</property>');
-			//content.push('\t<property name="presetDouble" type="double">1.23456</property>');
+		//for fixed tiapp properties
 		}
 	});
 	fs.writeFileSync(tiapp_xml, content.join('\n'));
@@ -165,7 +145,7 @@ function runAndroidBuild(next, count) {
 	var prc,
 		inResults = false,
 		done = false;
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors']);
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);
@@ -218,9 +198,9 @@ function runAndroidBuild(next, count) {
 	});
 }
 
-function parseTestResults(testResults, next) {
+function parseIOSTestResults(testResults, next) {
 	if (!testResults) {
-		next("Failed to retrieve any tests results!");
+		next();
 	} else {
 		// preserve newlines, etc - use valid JSON
 		testResults = testResults.replace(/\\n/g, "\\n")  
@@ -233,50 +213,37 @@ function parseTestResults(testResults, next) {
 				   .replace(/\\f/g, "\\f");
 		// remove non-printable and other non-valid JSON chars
 		testResults = testResults.replace(/[\u0000-\u0019]+/g,""); 
-		jsonResults = JSON.parse(testResults);
+		iosJsonResults = JSON.parse(testResults);
 		next();
 	}
 }
 
-function outputJUnitXML(jsonResults, fileName, next) {
-	// We need to go through the results and separate them out into suites!
-	var suites = {},
-		keys = [],
-		values = [],
-		r = '';
-	jsonResults.results.forEach(function(item) {
-		var s = suites[item.suite] || {tests: [], suite: item.suite, duration: 0, passes: 0, failures: 0, start:''}; // suite name to group by
-		s.tests.unshift(item);
-		s.duration += item.duration;
-		if (item.state == 'failed') {
-			s.failures += 1;
-		} else if (item.state == 'passed') {
-			s.passes += 1;
-		}
-		suites[item.suite] = s;
-	});
-	keys = Object.keys(suites);
-	values = keys.map(function(v) { return suites[v]; });
-	var r = ejs.render('' + fs.readFileSync(path.join('.', 'junit.xml.ejs')),  { 'suites': values });
-
-	// Write the JUnit XML to a file
-	fs.writeFileSync(path.join('..', '..', 'dist', fileName), r);
-	next();
+function parseAndroidTestResults(testResults, next) {
+	if (!testResults) {
+		next();
+	} else {
+		// preserve newlines, etc - use valid JSON
+		testResults = testResults.replace(/\\n/g, "\\n")  
+				   .replace(/\\'/g, "\\'")
+				   .replace(/\\"/g, '\\"')
+				   .replace(/\\&/g, "\\&")
+				   .replace(/\\r/g, "\\r")
+				   .replace(/\\t/g, "\\t")
+				   .replace(/\\b/g, "\\b")
+				   .replace(/\\f/g, "\\f");
+		// remove non-printable and other non-valid JSON chars
+		testResults = testResults.replace(/[\u0000-\u0019]+/g,""); 
+		androidJsonResults = JSON.parse(testResults);
+		next();
+	}
 }
-
 /**
- * Installs the SDK from master branch, generates a Titanium mobile project
- * , sets up the project, copies unit tests into it from ti_mocha_tests,
+ * Finds the SDK, generates a Titanium mobile project, sets up the project, copies unit tests into it from ti_mocha_tests,
  * and then runs the project in a ios simulator and android emulator which will run the mocha unit tests. The test results are piped to
- * the CLi, which takes them and generates a JUnit test result XML report for the Jenkins build machine.
+ * the CLi, which takes them, and compared to the minimum health threshold. If it falls below the threshold, process exits with a fail.
  */
 function test(callback) {
 	async.series([
-/*		function (next) {
-			// If this is already installed we don't re-install, thankfully
-			console.log("Installing SDK from master branch");
-			installSDK(next);
-		},*/
 		function (next) {
 			getSDKInstallDir(next);
 		},
@@ -298,24 +265,20 @@ function test(callback) {
 			runIOSBuild(next, 1);
 		},
 		function (next) {
-			parseTestResults(iosTestResults, next);
-		}/*,
-		function (next) {
-			outputJUnitXML(jsonResults,'ios_junit_report.xml', next);
-
+			parseIOSTestResults(iosTestResults, next);
 		},
 		function (next) {
 			console.log("Launching android test project in emulator");
 			runAndroidBuild(next, 1);
 		},
 		function (next) {
-			parseTestResults(androidTestResults, next);
-		},
-		function (next) {
-			outputJUnitXML(jsonResults, 'android_junit_report.xml', next);
-		}*/		
+			parseAndroidTestResults(androidTestResults, next);
+		}		
 	], function(err) {
-		callback(err, iosTestResults);
+		callback(err, {
+			iosResults: iosJsonResults,
+			androidResults: androidJsonResults
+		});
 	});
 
 }
@@ -325,14 +288,56 @@ exports.test = test;
 
 // When run as single script.
 if (module.id === ".") {
-	test(function (err, results) {
-		console.log('kiatoto got it here');
-		console.log(results);
+	test(function (err, finalResults) {
+		var iosPassedTestsCount = 0,
+			iosAllTestsCount = 0,
+			androidPassedTestsCount = 0,
+			androidAllTestsCount = 0,
+			iosFailedTests = [],
+			androidFailedTests = [];
 		if (err) {
 			console.error(err.toString().red);
 			process.exit(1);
 		} else {
-			process.exit(1);
+			console.log('Unit tests summary:');
+			if (typeof finalResults.iosResults !== 'undefined' && finalResults.iosResults){
+				iosAllTestsCount = finalResults.iosResults.results.length;
+				for (var i = 0; i < iosAllTestsCount; i++) {
+					var test = finalResults.iosResults.results[i];
+					if (test.state == 'failed') {
+						iosFailedTests.push(test);
+					}
+					else {
+						iosPassedTestsCount++;
+					}
+				}
+			}
+			if (typeof finalResults.androidResults !== 'undefined' && finalResults.androidResults){
+				androidAllTestsCount = finalResults.androidResults.results.length;
+				for (var i = 0; i < androidAllTestsCount; i++) {
+					var test = finalResults.androidResults.results[i];
+					if (test.state == 'failed') {
+						androidFailedTests.push(test);
+					}
+					else {
+						androidPassedTestsCount++;
+					}
+				}
+			}
+			console.log('ios: %d / %d', iosPassedTestsCount,iosAllTestsCount);
+			console.log('android: %d / %d', androidPassedTestsCount,androidAllTestsCount);
+			console.log('Total: %d / %d',iosPassedTestsCount + androidPassedTestsCount,iosAllTestsCount + androidAllTestsCount);
+			console.log('Please check:');
+			console.log('ios failed tests');
+			console.log(iosFailedTests);
+			console.log('android failed tests');
+			console.log(androidFailedTests);
+			//need a command here to put the failed tests and the health somewhere visible outside of travis
+			if((iosPassedTestsCount + androidPassedTestsCount)/(iosAllTestsCount + androidAllTestsCount) < minHealthThreshold) {
+				console.log('Too many unit tests failed. Does not meet minimum health threshold, failing travis build.');
+				process.exit(1);
+			}
+			process.exit(0);
 		}
 	});
 }

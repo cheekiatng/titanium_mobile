@@ -59,14 +59,6 @@ script:
   - cd ../support/ti_mocha_script
   - npm install .
   - node test.js
-  - cd ../../
-  - ls dist
 
 after_success:
-  - #cd dist
-  - #ti sdk install *osx.zip
-  - #cd support/ti_mocha_script
-  - #npm install .
-  - #node test.js
-  - #cd $TRAVIS_BUILD_DIR
-  - #ls dist
+  - #upload test results somewhere
