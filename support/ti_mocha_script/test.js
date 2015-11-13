@@ -135,6 +135,9 @@ function runIOSBuild(next, count) {
 	});
 
 	prc.on('close', function (code) {
+		if (code != 0) {
+			next("Failed to build ios project");
+		} 
 		if (done) {
 			next(); // only move forward if we got results and killed the process!
 		}
@@ -192,6 +195,9 @@ function runAndroidBuild(next, count) {
 	});
 
 	prc.on('close', function (code) {
+		if (code != 0) {
+			next("Failed to build android project");
+		} 		
 		if (done) {
 			next(); // only move forward if we got results and killed the process!
 		}
