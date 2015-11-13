@@ -358,7 +358,7 @@ if (module.id === ".") {
 			console.log('Total: %d / %d',iosPassedTestsCount + androidPassedTestsCount,iosAllTestsCount + androidAllTestsCount);
 			console.log("Health: %d", health);
 			//need a command here to put the failed tests and the health somewhere visible outside of travis
-			if((health < minHealthThreshold) {
+			if(health < minHealthThreshold) {
 				console.log('\nToo many unit tests failed. Does not meet minimum health threshold, failing travis build.');
 				process.exit(1);
 			}
