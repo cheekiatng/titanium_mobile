@@ -88,7 +88,7 @@ function runIOSBuild(next, count) {
 	var prc,
 		inResults = false,
 		done = false;
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'ios', '--target', 'simulator', '--no-prompt', '--no-colors']);
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'ios', '--target', 'simulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);
@@ -135,12 +135,12 @@ function runIOSBuild(next, count) {
 	});
 
 	prc.on('close', function (code) {
-		if (code != 0) {
-			next("Failed to build ios project");
-		} 
 		if (done) {
 			next(); // only move forward if we got results and killed the process!
 		}
+		else {
+			next("Failed to build ios project");
+		} 
 	});
 }
 
@@ -195,12 +195,12 @@ function runAndroidBuild(next, count) {
 	});
 
 	prc.on('close', function (code) {
-		if (code != 0) {
-			next("Failed to build android project");
-		} 		
 		if (done) {
 			next(); // only move forward if we got results and killed the process!
 		}
+		else {
+			next("Failed to build android project");
+		} 		
 	});
 }
 
@@ -305,7 +305,6 @@ if (module.id === ".") {
 			console.error(err.toString().red);
 			process.exit(1);
 		} else {
-			console.log('Unit tests summary:');
 			if (typeof finalResults.iosResults !== 'undefined' && finalResults.iosResults){
 				iosAllTestsCount = finalResults.iosResults.results.length;
 				for (var i = 0; i < iosAllTestsCount; i++) {
@@ -330,17 +329,19 @@ if (module.id === ".") {
 					}
 				}
 			}
-			console.log('ios: %d / %d', iosPassedTestsCount,iosAllTestsCount);
-			console.log('android: %d / %d', androidPassedTestsCount,androidAllTestsCount);
-			console.log('Total: %d / %d',iosPassedTestsCount + androidPassedTestsCount,iosAllTestsCount + androidAllTestsCount);
-			console.log('Please check:');
-			console.log('ios failed tests');
+			console.log('------------Automated Unit Test Results---------------');
+			console.log('\n----------------IOS Failed Tests----------------------');
 			console.log(iosFailedTests);
-			console.log('android failed tests');
+			console.log('\n--------------Android Failed Tests--------------------');
 			console.log(androidFailedTests);
+			console.log('\n------------Automated Unit Test Summary---------------');
+			console.log('\nIOS: %d / %d', iosPassedTestsCount,iosAllTestsCount);
+			console.log('Android: %d / %d', androidPassedTestsCount,androidAllTestsCount);
+			console.log('Total: %d / %d',iosPassedTestsCount + androidPassedTestsCount,iosAllTestsCount + androidAllTestsCount);
+
 			//need a command here to put the failed tests and the health somewhere visible outside of travis
 			if((iosPassedTestsCount + androidPassedTestsCount)/(iosAllTestsCount + androidAllTestsCount) < minHealthThreshold) {
-				console.log('Too many unit tests failed. Does not meet minimum health threshold, failing travis build.');
+				console.log('\nToo many unit tests failed. Does not meet minimum health threshold, failing travis build.');
 				process.exit(1);
 			}
 			process.exit(0);
