@@ -152,7 +152,19 @@ function runAndroidBuild(next, count) {
 
 	//unlock android emulator before ti build
 	androidUnlock = spawn('adb', ['shell','input','keyevent','82', '&']);
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
+	android.stdout.on('data', function(data) {
+		console.log('kiatoto android emulator');
+		console.log(data.toString());
+	});
+	android.stderr.on('data', function(data) {
+		console.log('kiatoto android emulator error');
+		console.log(data.toString());
+	});
+	android.on('close', function(code) {
+		console.log('kiatoto android emulator code');
+		console.log(code);
+	});	
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);
@@ -270,13 +282,13 @@ function test(callback) {
 			console.log("Copying test scripts into project");
 			copyMochaAssets(next);
 		},
-		function (next) {
+		/*function (next) {
 			console.log("Launching ios test project in simulator");
 			runIOSBuild(next, 1);
 		},
 		function (next) {
 			parseIOSTestResults(iosTestResults, next);
-		},
+		},*/
 		function (next) {
 			console.log("Launching android test project in emulator");
 			runAndroidBuild(next, 1);
@@ -304,7 +316,8 @@ if (module.id === ".") {
 			androidPassedTestsCount = 0,
 			androidAllTestsCount = 0,
 			iosFailedTests = [],
-			androidFailedTests = [];
+			androidFailedTests = [],
+			health = 0;
 		if (err) {
 			console.error(err.toString().red);
 			process.exit(1);
@@ -333,6 +346,7 @@ if (module.id === ".") {
 					}
 				}
 			}
+			health = (iosPassedTestsCount + androidPassedTestsCount)/(iosAllTestsCount + androidAllTestsCount);
 			console.log('------------Automated Unit Test Results---------------');
 			console.log('\n----------------IOS Failed Tests----------------------');
 			console.log(iosFailedTests);
@@ -342,9 +356,9 @@ if (module.id === ".") {
 			console.log('\nIOS: %d / %d', iosPassedTestsCount,iosAllTestsCount);
 			console.log('Android: %d / %d', androidPassedTestsCount,androidAllTestsCount);
 			console.log('Total: %d / %d',iosPassedTestsCount + androidPassedTestsCount,iosAllTestsCount + androidAllTestsCount);
-
+			console.log("Health: %d", health);
 			//need a command here to put the failed tests and the health somewhere visible outside of travis
-			if((iosPassedTestsCount + androidPassedTestsCount)/(iosAllTestsCount + androidAllTestsCount) < minHealthThreshold) {
+			if((health < minHealthThreshold) {
 				console.log('\nToo many unit tests failed. Does not meet minimum health threshold, failing travis build.');
 				process.exit(1);
 			}
