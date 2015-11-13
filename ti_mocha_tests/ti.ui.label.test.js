@@ -27,7 +27,12 @@ describe("Titanium.UI.Label", function () {
             text: "this is some text",
             textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER
         });
-        should(label.textAlign).be.a.Number; // String on Android
+        if (Ti.Platform.osname == 'android') {
+            should(label.textAlign).be.a.String; // String on Android
+        } 
+        else {
+            should(label.textAlign).be.a.Number;
+        }
         should(label.getTextAlign).be.a.Function;
         should(label.textAlign).eql(Titanium.UI.TEXT_ALIGNMENT_CENTER);
         should(label.getTextAlign()).eql(Titanium.UI.TEXT_ALIGNMENT_CENTER);
@@ -42,7 +47,12 @@ describe("Titanium.UI.Label", function () {
             text: "this is some text",
             verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM
         });
-        should(label.verticalAlign).be.a.Number; // String on Android
+        if (Ti.Platform.osname == 'android') {
+            should(label.verticalAlign).be.a.String; // String on Android
+        } 
+        else {
+            should(label.verticalAlign).be.a.Number;
+        }
         should(label.getVerticalAlign).be.a.Function;
         should(label.verticalAlign).eql(Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM);
         should(label.getVerticalAlign()).eql(Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM);

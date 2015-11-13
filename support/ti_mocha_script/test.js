@@ -146,8 +146,12 @@ function runIOSBuild(next, count) {
 
 function runAndroidBuild(next, count) {
 	var prc,
+		androidUnlock,
 		inResults = false,
 		done = false;
+
+	//unlock android emulator before ti build
+	androidUnlock = spawn('adb', ['shell','input','keyevent','82', '&']);
 	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
