@@ -152,15 +152,15 @@ function runAndroidBuild(next, count) {
 
 	//unlock android emulator before ti build
 	androidUnlock = spawn('adb', ['shell','input','keyevent','82', '&']);
-	android.stdout.on('data', function(data) {
+	androidUnlock.stdout.on('data', function(data) {
 		console.log('kiatoto android emulator');
 		console.log(data.toString());
 	});
-	android.stderr.on('data', function(data) {
+	androidUnlock.stderr.on('data', function(data) {
 		console.log('kiatoto android emulator error');
 		console.log(data.toString());
 	});
-	android.on('close', function(code) {
+	androidUnlock.on('close', function(code) {
 		console.log('kiatoto android emulator code');
 		console.log(code);
 	});	
