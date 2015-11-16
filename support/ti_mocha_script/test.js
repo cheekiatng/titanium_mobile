@@ -153,18 +153,17 @@ function runAndroidBuild(next, count) {
 	//unlock android emulator before ti build
 	androidUnlock = spawn('adb', ['shell','input','keyevent','82', '&']);
 	androidUnlock.stdout.on('data', function(data) {
-		console.log('kiatoto android emulator');
 		console.log(data.toString());
 	});
 	androidUnlock.stderr.on('data', function(data) {
-		console.log('kiatoto android emulator error');
+		console.log('Android emulator error');
 		console.log(data.toString());
 	});
 	androidUnlock.on('close', function(code) {
-		console.log('kiatoto android emulator code');
+		console.log('Android emulator code');
 		console.log(code);
 	});	
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors']);
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors','--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);
@@ -282,13 +281,13 @@ function test(callback) {
 			console.log("Copying test scripts into project");
 			copyMochaAssets(next);
 		},
-		/*function (next) {
+		function (next) {
 			console.log("Launching ios test project in simulator");
 			runIOSBuild(next, 1);
 		},
 		function (next) {
 			parseIOSTestResults(iosTestResults, next);
-		},*/
+		},
 		function (next) {
 			console.log("Launching android test project in emulator");
 			runAndroidBuild(next, 1);
