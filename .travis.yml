@@ -24,7 +24,7 @@ install:
   - export PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools
   -
   -   # Install required Android components.
-  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-23.0.0,extra-android-support,android-8,android-10,android-22,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-22
+  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-23.0.0,extra-android-support,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-23
   - # Install required Android NDK
   - if [ ! -d "$SDKS/android-ndk-r8c" ]; then wget http://dl.google.com/android/ndk/$ANDROID_NDK_PACKAGE; tar xzf $ANDROID_NDK_PACKAGE; fi
   - export ANDROID_NDK=${PWD}/android-ndk-r8c
@@ -40,7 +40,7 @@ install:
   - export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-$TITANIUM_ANDROID_API
 
 before_script:
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - echo no | android create avd --force -n test -t android-23 --abi armeabi-v7a
   - echo yes | emulator -avd test -no-skin -no-audio -no-window &
   - #android-wait-for-emulator
   - #adb shell input keyevent 82 &
