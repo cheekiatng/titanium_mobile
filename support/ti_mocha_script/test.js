@@ -35,13 +35,13 @@ function getSDKInstallDir(next) {
 }
 
 function generateProject(next) {
-	var projectDir = path.join(__dirname, 'mocha'),
+	var projectDir = path.join(__dirname, 'testApp'),
 		prc;
 	// If the project already exists, wipe it
 	if (fs.existsSync(projectDir)) {
 		wrench.rmdirSyncRecursive(projectDir);
 	}
-	prc = spawn('titanium', ['create', '--force', '--type', 'app', '--platforms', 'android,ios', '--name', 'mocha', '--id', 'com.appcelerator.mocha.testing', '--url', 'http://www.appcelerator.com', '--workspace-dir', __dirname, '--no-prompt']);
+	prc = spawn('titanium', ['create', '--force', '--type', 'app', '--platforms', 'android,ios', '--name', 'testApp', '--id', 'com.appcelerator.testApp.testing', '--url', 'http://www.appcelerator.com', '--workspace-dir', __dirname, '--no-prompt']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 	});
@@ -60,7 +60,7 @@ function generateProject(next) {
 
 // Add required properties for our unit tests!
 function addTiAppProperties(next) {
-	var tiapp_xml = path.join(__dirname, 'mocha', 'tiapp.xml');
+	var tiapp_xml = path.join(__dirname, 'testApp', 'tiapp.xml');
 
 	// Not so smart but this should work...
 	var content = [];
@@ -77,7 +77,7 @@ function addTiAppProperties(next) {
 
 function copyMochaAssets(next) {
 	var mochaAssetsDir = path.join(__dirname, '..', '..', 'ti_mocha_tests'),
-		dest = path.join(__dirname, 'mocha', 'Resources');
+		dest = path.join(__dirname, 'testApp', 'Resources');
 	wrench.copyDirSyncRecursive(mochaAssetsDir, dest, {
 		forceDelete: true
 	});
@@ -88,7 +88,7 @@ function runIOSBuild(next, count) {
 	var prc,
 		inResults = false,
 		done = false;
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'ios', '--target', 'simulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'ios', '--target', 'simulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);
@@ -164,7 +164,7 @@ function runAndroidBuild(next, count) {
 		console.log('kiatoto android emulator code');
 		console.log(code);
 	});	
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'mocha'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors']);
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);
