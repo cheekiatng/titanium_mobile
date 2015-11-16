@@ -24,7 +24,7 @@ install:
   - export PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools
   -
   -   # Install required Android components.
-  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-22.0.1,build-tools-23.0.0,extra-android-support,extra-google-m2repository,extra-android-m2repository,android-8,android-10,android-22,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-22
+  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-23.0.0,extra-android-support,android-8,android-10,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-$TITANIUM_ANDROID_API
   - # Install required Android NDK
   - if [ ! -d "$SDKS/android-ndk-r8c" ]; then wget http://dl.google.com/android/ndk/$ANDROID_NDK_PACKAGE; tar xzf $ANDROID_NDK_PACKAGE; fi
   - export ANDROID_NDK=${PWD}/android-ndk-r8c
@@ -57,8 +57,6 @@ script:
   - ti sdk install *osx.zip
   - cd ../support/ti_mocha_script
   - npm install .
-  - #android-wait-for-emulator
-  - #adb shell input keyevent 82 & 
   - node test.js
 
 after_success:
