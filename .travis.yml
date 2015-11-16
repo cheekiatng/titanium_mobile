@@ -25,7 +25,7 @@ install:
   - export PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools
   -
   -   # Install required Android components.
-  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-$TITANIUM_ANDROID_API.0.0,extra-android-support,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-22
+  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-$TITANIUM_ANDROID_API.0.0,extra-android-support,android-22,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-22
   - # Install required Android NDK
   - if [ ! -d "$SDKS/android-ndk-r8c" ]; then wget http://dl.google.com/android/ndk/$ANDROID_NDK_PACKAGE; tar xzf $ANDROID_NDK_PACKAGE; fi
   - export ANDROID_NDK=${PWD}/android-ndk-r8c
