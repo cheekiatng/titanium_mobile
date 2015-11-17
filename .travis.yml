@@ -53,6 +53,8 @@ script:
   - npm test
   - ls dist
   - cd dist
+  - rm -r *win32.zip
+  - rm -r *linux.zip
   - ti sdk install *osx.zip
   - cd ../support/ti_mocha_script
   - npm install .
