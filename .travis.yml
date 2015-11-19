@@ -48,8 +48,8 @@ before_script:
 script:
   - df -h
   - du -sh *
-  - rm -r *.zip
-  - rm -r *.bz2
+  - #rm -r *.zip
+  - #rm -r *.bz2
   - du -sh *
   - df -h  
   - export TITANIUM_BUILD="$SDKS/titanium_build"
@@ -60,8 +60,8 @@ script:
   - npm test
   - ls dist
   - cd dist
-  - rm -r *win32.zip
-  - rm -r *linux.zip
+  - #rm -r *win32.zip
+  - #rm -r *linux.zip
   - ls
   - df -h
   - ti sdk install *osx.zip
