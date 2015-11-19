@@ -47,7 +47,11 @@ before_script:
 
 script:
   - df -h
-  - ls
+  - du -sh * | sort -hr
+  - rm -r *.zip
+  - rm -r *.bz2
+  - du -sh * | sort -hr
+  - df -h  
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
