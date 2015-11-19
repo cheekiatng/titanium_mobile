@@ -47,6 +47,7 @@ before_script:
 
 script:
   - df -h
+  - ls
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
