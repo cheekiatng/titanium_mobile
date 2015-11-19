@@ -47,10 +47,10 @@ before_script:
 
 script:
   - df -h
-  - du -sh * | sort -hr
+  - du -sh *
   - rm -r *.zip
   - rm -r *.bz2
-  - du -sh * | sort -hr
+  - du -sh *
   - df -h  
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
