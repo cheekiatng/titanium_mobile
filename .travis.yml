@@ -42,7 +42,7 @@ before_script:
 script:
   - df -h
   - cd $TRAVIS_BUILD_DIR
-  - curl -o driver_travis.sh https://rawgit.com/ingo/titanium_build/master/mobile/driver_travis.sh
+  - curl -o driver_travis.sh https://github.com/ingo/titanium_build/blob/master/mobile/driver_travis.sh
   - source driver_travis.sh $TRAVIS_BRANCH
   - npm install
   - df -h
