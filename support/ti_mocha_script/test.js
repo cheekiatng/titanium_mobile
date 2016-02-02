@@ -90,7 +90,7 @@ function runIOSBuild(next, count) {
 	var prc,
 		inResults = false,
 		done = false;
-	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'ios', '--target', 'simulator', '--no-prompt', '--no-colors', '--log-level', 'trace']);
+	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'ios', '--target', 'simulator', '--no-prompt', '--no-colors', '--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
 		var lines = data.toString().trim().match(/^.*([\n\r]+|$)/gm);

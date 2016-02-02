@@ -39,12 +39,6 @@ install:
   -
   - export ANDROID_PLATFORM=$ANDROID_SDK/platforms/android-$TITANIUM_ANDROID_API
   - export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-$TITANIUM_ANDROID_API
-
-before_script:
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-  - echo yes | emulator -avd test -no-skin -no-audio -no-window &
-
-script:
   - df -h
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
@@ -57,6 +51,12 @@ script:
   - ti sdk install *osx.zip
   - cd ..
   - npm install grunt-cli
+
+before_script:
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - echo yes | emulator -avd test -no-skin -no-audio -no-window &
+
+script:
   - npm test -- run-on-travis
 
 after_success:
