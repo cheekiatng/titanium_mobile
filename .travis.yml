@@ -18,7 +18,6 @@ install:
   - mkdir -p "$TITANIUM_ROOT/sdks/"
   - 
   - export SDKS="$TRAVIS_BUILD_DIR/sdks"
-  - echo $SDKS
   - mkdir -p "$SDKS" 
   - if [ ! -d "$SDKS/android-sdk-macosx" ]; then cd "$SDKS"; wget http://dl.google.com/android/$ANDROID_SDK_PACKAGE; unzip -o $ANDROID_SDK_PACKAGE; fi
   - export ANDROID_SDK=${PWD}/android-sdk-macosx
@@ -29,10 +28,6 @@ install:
   - # Install required Android NDK
   - if [ ! -d "$SDKS/android-ndk-r8c" ]; then wget http://dl.google.com/android/ndk/$ANDROID_NDK_PACKAGE; tar xzf $ANDROID_NDK_PACKAGE; fi
   - export ANDROID_NDK=${PWD}/android-ndk-r8c
-  -
-  - # Install required Titanium build
-  - git clone https://github.com/ingo/titanium_build.git "$SDKS/titanium_build" 
-  - ls "$SDKS/titanium_build"
   -
   - sudo easy_install pyyaml
   - sudo easy_install Pygments
@@ -46,10 +41,9 @@ before_script:
 
 script:
   - df -h
-  - export TITANIUM_BUILD="$SDKS/titanium_build"
-  - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
-  - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
+  - curl -o driver_travis.sh https://github.com/ingo/titanium_build/blob/master/mobile/driver_travis.sh
+  - source driver_travis.sh $TRAVIS_BRANCH
   - npm install
   - df -h
   - ls dist
