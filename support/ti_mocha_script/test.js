@@ -295,18 +295,18 @@ function test(callback) {
 				copyMochaAssets(next);
 			},
 			function (next) {
-				console.log("Launching android test project in emulator");
-				runAndroidBuild(next, 1);
-			},
-			function (next) {
-				parseAndroidTestResults(androidTestResults, next);
-			},		
-			function (next) {
 				console.log("Launching ios test project in simulator");
 				runIOSBuild(next, 1);
 			},
 			function (next) {
 				parseIOSTestResults(iosTestResults, next);
+			}			
+			function (next) {
+				console.log("Launching android test project in emulator");
+				runAndroidBuild(next, 1);
+			},
+			function (next) {
+				parseAndroidTestResults(androidTestResults, next);
 			}
 		], function(err) {
 			callback(err, {
