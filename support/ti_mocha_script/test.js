@@ -284,7 +284,6 @@ function test(callback) {
 			function (next) {
 				console.log("Generating project");
 				generateProject(next);
-
 			},
 			function (next) {
 				console.log("Adding properties for tiapp.xml");
@@ -300,7 +299,7 @@ function test(callback) {
 			},
 			function (next) {
 				parseIOSTestResults(iosTestResults, next);
-			}			
+			},
 			function (next) {
 				console.log("Launching android test project in emulator");
 				runAndroidBuild(next, 1);
